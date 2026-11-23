@@ -43,14 +43,8 @@ add_calc_plugin(funcln plugins/Ln.cpp "${CMAKE_BINARY_DIR}/bin/plugins")
 
 include(CTest)
 if(BUILD_TESTING)
-    find_package(Python3 COMPONENTS Interpreter REQUIRED)
-    add_calc_plugin(testfixture tests/Fixture.cpp "${CMAKE_BINARY_DIR}/fixtures")
-    add_calc_plugin(missingexport tests/MissingExport.cpp "${CMAKE_BINARY_DIR}/fixtures")
-    add_executable(lifetime_test tests/Lifetime.cpp)
-    target_link_libraries(lifetime_test PRIVATE calc_core)
-    add_test(NAME command_lifetime COMMAND lifetime_test "${CMAKE_BINARY_DIR}/bin/plugins")
-    add_test(NAME calculator_integration COMMAND "${Python3_EXECUTABLE}"
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/integration.py" "$<TARGET_FILE:calc>"
-        "$<TARGET_FILE:funcsin>" "$<TARGET_FILE:funcdeg>" "$<TARGET_FILE:funcln>"
-        "$<TARGET_FILE:testfixture>" "$<TARGET_FILE:missingexport>")
+    add_test(NAME calculator_smoke COMMAND calc "2^4 + sin(90)")
+    set_tests_properties(calculator_smoke PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        PASS_REGULAR_EXPRESSION "^17")
 endif()

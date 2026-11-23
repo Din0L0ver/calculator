@@ -18,15 +18,18 @@ class SharedLibrary final
 {
 public:
     explicit SharedLibrary(std::filesystem::path const& path)
+#ifdef _WIN32
+        : m_handle(LoadLibraryW(path.c_str()))
+#else
+        : m_handle(dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL))
+#endif
     {
 #ifdef _WIN32
-        m_handle = LoadLibraryW(path.c_str());
         if (!m_handle)
         {
             throw std::runtime_error("LoadLibrary failed, code " + std::to_string(GetLastError()));
         }
 #else
-        m_handle = dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
         if (!m_handle)
         {
             throw std::runtime_error(dlerror());

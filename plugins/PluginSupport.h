@@ -19,31 +19,39 @@ inline void copyError(char* buffer, unsigned capacity, char const* message) noex
 }
 
 // Обёртка ловит исключение до выхода из DLL, включая исключения не из std::exception.
+struct PluginCall
+{
+    double const* arguments;
+    unsigned count;
+    double* result;
+    char* error;
+    unsigned capacity;
+};
+
 template<typename Function>
-int invokePlugin(double const* arguments, unsigned count, unsigned expected, double* result,
-                 char* error, unsigned capacity, Function function) noexcept
+int invokePlugin(PluginCall call, unsigned expected, Function function) noexcept
 {
     try
     {
-        if (!result || count != expected || (count != 0 && !arguments))
+        if (!call.result || call.count != expected || (call.count != 0 && !call.arguments))
         {
             throw std::invalid_argument("Invalid arguments");
         }
-        double const value = function(arguments);
+        double const value = function(call.arguments);
         if (!std::isfinite(value))
         {
             throw std::domain_error("Result is not a finite real number");
         }
-        *result = value;
+        *call.result = value;
         return 0;
     }
     catch (std::exception const& exception)
     {
-        copyError(error, capacity, exception.what());
+        copyError(call.error, call.capacity, exception.what());
     }
     catch (...)
     {
-        copyError(error, capacity, "Unknown plugin exception");
+        copyError(call.error, call.capacity, "Unknown plugin exception");
     }
     return 1;
 }

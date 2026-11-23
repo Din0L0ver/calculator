@@ -3,9 +3,9 @@
 namespace
 {
 int CALC_CALL evaluate(double const* arguments, unsigned count, double* result,
-                       char* error, unsigned capacity) noexcept
+                       char* error, unsigned capacity)
 {
-    return invokePlugin(arguments, count, 2, result, error, capacity, [](double const* a)
+    return invokePlugin({arguments, count, result, error, capacity}, 2, [](double const* a)
     {
         if (a[0] == 0.0 && a[1] <= 0.0)
         {

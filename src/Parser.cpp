@@ -37,7 +37,7 @@ private:
         {
             ++m_position;
         }
-        return m_position == m_text.size() ? '\0' : m_text[m_position];
+        return m_position >= m_text.size() ? '\0' : m_text[m_position];
     }
 
     [[noreturn]] void fail(std::string const& message) const
